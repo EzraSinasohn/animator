@@ -1,0 +1,445 @@
+/* All styling for the Animator app. The .gleam files only attach class names. */
+
+:root {
+  --surface: #17191d;
+  --surface-raised: #202329;
+  --surface-deep: #111317;
+  --text: #d7d9dc;
+  --text-soft: #a7abb1;
+  --line: #383c43;
+  --line-strong: #515761;
+  --coral: #c98e8e;
+  --amber: #c8a47f;
+  --gold: #cbbd8c;
+  --sage: #91ad91;
+  --teal: #88afb0;
+  --sky: #8fa9c2;
+  --lilac: #a79abd;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: 100%; height: 100%; overflow: hidden; }
+
+/* ── Layout: two columns ─────────────────────────────────────────────────── */
+
+.app {
+  position: relative;
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  background:
+    linear-gradient(
+      112deg,
+      rgba(201, 142, 142, 0.10) 0%,
+      rgba(200, 164, 127, 0.07) 27%,
+      rgba(203, 189, 140, 0.045) 43%,
+      rgba(145, 173, 145, 0.04) 60%,
+      rgba(136, 175, 176, 0.05) 76%,
+      rgba(143, 169, 194, 0.065) 89%,
+      rgba(167, 154, 189, 0.06) 100%
+    ),
+    var(--surface);
+  color: var(--text);
+  font-family: system-ui, sans-serif;
+  font-size: 14px;
+}
+
+.app::before {
+  position: absolute;
+  z-index: 20;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(
+    90deg,
+    var(--coral),
+    var(--amber),
+    var(--gold),
+    var(--sage),
+    var(--teal),
+    var(--sky),
+    var(--lilac)
+  );
+  content: "";
+  opacity: 0.72;
+  pointer-events: none;
+}
+
+/* Left column: the code editor. */
+.code-col {
+  width: 42%;
+  min-width: 320px;
+  max-width: 720px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #3a3a5e;
+  background: #0f0f1e;
+}
+
+/* The code column stays in the DOM when collapsed, so CodeMirror keeps its
+   state; hiding it gives the right column the full width. */
+.app.code-hidden .code-col { display: none; }
+
+.drawing-select-wrap {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border-bottom: 1px solid #3a3a5e;
+}
+
+.drawing-select {
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 8px;
+  border: 1px solid #4a4a8a;
+  border-left: 2px solid var(--coral);
+  background: #1a1a3e;
+  color: #d4c5a0;
+  font: inherit;
+}
+
+.drawing-select:focus-visible {
+  outline: 1px solid var(--gold);
+  outline-offset: 2px;
+}
+
+.save-dialog {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border-bottom: 1px solid #3a3a5e;
+  background: #171726;
+  color: #d4c5a0;
+}
+.save-dialog label { font-size: 12px; }
+.save-dialog input {
+  width: 100%;
+  min-width: 0;
+  min-height: 32px;
+  padding: 5px 8px;
+  border: 1px solid #4a4a8a;
+  background: #0d0d1a;
+  color: #d4c5a0;
+  font: inherit;
+}
+.save-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+/* A small emoji button (the code pane's collapse toggle, and the playback
+   controls once they exist). */
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #2a2a4a;
+  color: #d4c5a0;
+  border: 1px solid #4a4a8a;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1;
+  padding: 5px 8px;
+}
+.icon-btn:hover { background: #3a3a5e; }
+
+/* ── Code panel (left column) ───────────────────────────────────────────── */
+
+.code-panel {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.code-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 14px;
+  background: #1a1a3e;
+  border-bottom: 1px solid #3a3a5e;
+}
+.code-title {
+  color: #e8d8b0;
+  font-family: 'Georgia', serif;
+  font-size: 16px;
+  letter-spacing: 1px;
+}
+.code-actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.save-drawing-btn {
+  white-space: nowrap;
+  font-size: 12px;
+}
+
+/* Wrapper holding the editor. */
+.code-editor-wrap {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+}
+/* CodeMirror mount node: grows to fill the panel. */
+.code-editor {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  overflow: hidden;
+  background: #0d0d1a;
+}
+.code-editor .cm-editor { width: 100%; height: 100%; }
+
+/* Collapsible reference of the built-ins available to draw functions. */
+.reference {
+  margin: 8px 14px 0;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--surface-deep);
+  overflow: hidden;
+}
+.reference-summary {
+  padding: 6px 12px;
+  cursor: pointer;
+  color: var(--text-soft);
+  font-family: monospace;
+  font-size: 12px;
+  user-select: none;
+}
+.reference-summary:hover { color: var(--gold); }
+.reference-body {
+  padding: 4px 12px 10px;
+  border-top: 1px solid var(--line);
+}
+.reference-group { margin-top: 8px; }
+.reference-group-title {
+  color: var(--lilac);
+  font-family: monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 4px;
+}
+.reference-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 1px 0;
+}
+.reference-sig {
+  color: var(--teal);
+  font-family: monospace;
+  font-size: 12px;
+  white-space: pre;
+}
+.reference-desc { color: var(--text-soft); font-size: 11px; }
+
+/* ── Animation area (right column) ──────────────────────────────────────── */
+
+.canvas-area {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    linear-gradient(
+      108deg,
+      rgba(211, 95, 118, 0.38) 0%,
+      rgba(231, 132, 77, 0.34) 19%,
+      rgba(220, 184, 78, 0.29) 37%,
+      rgba(110, 162, 100, 0.25) 53%,
+      rgba(66, 157, 157, 0.28) 70%,
+      rgba(91, 131, 190, 0.30) 85%,
+      rgba(148, 112, 180, 0.28) 100%
+    ),
+    #101216;
+  container-type: size;
+}
+
+.animation-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  max-width: calc(100% - 24px);
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-top-color: var(--sage);
+  background: rgba(23, 25, 29, 0.94);
+  color: var(--text);
+}
+
+.tool-palette {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  z-index: 4;
+  display: grid;
+  gap: 7px;
+  width: min(390px, calc(100% - 24px));
+  padding: 8px;
+  border: 1px solid var(--line);
+  border-left: 2px solid var(--coral);
+  background: rgba(18, 20, 24, 0.96);
+  color: var(--text);
+}
+
+.tool-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.tool-button,
+.color-picker-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 0;
+  min-height: 34px;
+  padding: 5px 8px;
+  border: 1px solid var(--line);
+  background: var(--surface-raised);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.tool-button span {
+  color: var(--teal);
+  font-size: 16px;
+}
+
+.tool-button.selected {
+  border-color: var(--gold);
+  background: #2a2a3a;
+  color: #fff;
+}
+
+.tool-button.selected span { color: var(--gold); }
+
+.snap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 25px;
+  color: var(--text-soft);
+  font-size: 12px;
+}
+.snap-toggle input { accent-color: var(--gold); }
+
+.color-picker-toggle {
+  justify-content: flex-start;
+  border-top-color: var(--sage);
+}
+.selected-color {
+  width: 18px;
+  height: 18px;
+  flex: 0 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+.color-picker {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+.color-swatches {
+  display: grid;
+  grid-template-columns: repeat(9, minmax(20px, 1fr));
+  gap: 5px;
+}
+.color-swatch {
+  width: 100%;
+  aspect-ratio: 1;
+  min-width: 20px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+}
+.color-swatch.selected { outline: 2px solid #fff; outline-offset: 1px; }
+.custom-color {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  color: var(--text-soft);
+  font-size: 10px;
+}
+.custom-color input {
+  width: 34px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line);
+  background: transparent;
+}
+
+.slider-control {
+  display: grid;
+  grid-template-columns: auto minmax(72px, 120px);
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.slider-control input {
+  width: 100%;
+  min-width: 0;
+  accent-color: var(--teal);
+}
+
+.slider-control:nth-child(2) input { accent-color: var(--coral); }
+
+/* The interpreter's List(Path) (or its error), shown as text before the
+   animation pane is built. */
+.output {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 16px;
+  overflow: auto;
+  background: rgba(16, 18, 22, 0.94);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+/* Leave room for the reveal button, which only overlays this pane while the
+   code column is hidden. */
+.app.code-hidden .output { padding-top: 48px; }
+
+/* Button that reveals the code column again when it is hidden. */
+.reveal-code {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 10;
+}
+
+/* Fill the available pane; the renderer letterboxes its square drawing space. */
+.canvas {
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
